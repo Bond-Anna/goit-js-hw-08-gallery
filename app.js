@@ -46,3 +46,55 @@ const galleryItems = [
     description: 'Lighthouse Coast Sea',
   },
 ];
+
+// Создание и рендер разметки по массиву данных galleryItems из app.js и предоставленному шаблону.
+const galleryEll = document.querySelector('.js-gallery');
+const modalEll = document.querySelector('.js-lightbox');
+const modalImageEl = document.querySelector('.lightbox__image');
+const closeBtn = document.querySelector('lightbox__button');
+
+const galleryItemsMarkup = creatGalleryItemsMarkup(galleryItems);
+
+function creatGalleryItemsMarkup(galleryItems) {
+  return galleryItems
+    .map(({ preview, original, description }) => {
+      return `<li class="gallery__item">
+        <a class="gallery__link" href="${original}">
+          <img
+            class="gallery__image"
+            src="${preview}"
+            data-source="${original}"
+            alt="${description}"
+          />
+        </a>
+      </li>`;
+    })
+    .join('');
+}
+console.log(galleryItemsMarkup);
+galleryEll.insertAdjacentHTML('beforeend', galleryItemsMarkup);
+
+galleryEll.addEventListener('click', onGalleryItemsClick);
+
+function onGalleryItemsClick(event) {
+  if (!event.target.classList.contains('gallery__image')) {
+    return;
+  }
+  modalEll.classList.add('is-open');
+
+  const isModalOpen = modalEll.classList.contains('is-open');
+  if (isModalOpen) {
+    modalImageEl.src = event.target.dataset.source;
+    modalImageEl.alt = event.target.alt;
+  }
+}
+
+// Закрытие модального окна по клику на кнопку button[data-action="close-lightbox"].
+closeBtn.addEventListener('click', onCloseBtnClick);
+function onCloseBtnClick(event) {
+  if (modalEll.classList.contains('is-open')) {
+    modalEll.classList.remove('is-open');
+  }
+}
+
+// Очистка значения атрибута src элемента img.lightbox__image. Это необходимо для того, чтобы при следующем открытии модального окна, пока грузится изображение, мы не видели предыдущее.
