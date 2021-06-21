@@ -47,11 +47,11 @@ const galleryItems = [
   },
 ];
 
-// Создание и рендер разметки по массиву данных galleryItems из app.js и предоставленному шаблону.
 const galleryEll = document.querySelector('.js-gallery');
 const modalEll = document.querySelector('.js-lightbox');
 const modalImageEl = document.querySelector('.lightbox__image');
-const closeBtn = document.querySelector('lightbox__button');
+const closeBtn = document.querySelector('button[data-action="close-lightbox"]');
+const overlay = document.querySelector('.lightbox__overlay');
 
 const galleryItemsMarkup = creatGalleryItemsMarkup(galleryItems);
 
@@ -75,26 +75,27 @@ console.log(galleryItemsMarkup);
 galleryEll.insertAdjacentHTML('beforeend', galleryItemsMarkup);
 
 galleryEll.addEventListener('click', onGalleryItemsClick);
-
 function onGalleryItemsClick(event) {
+  event.preventDefault();
   if (!event.target.classList.contains('gallery__image')) {
     return;
   }
   modalEll.classList.add('is-open');
-
-  const isModalOpen = modalEll.classList.contains('is-open');
-  if (isModalOpen) {
-    modalImageEl.src = event.target.dataset.source;
-    modalImageEl.alt = event.target.alt;
-  }
+  modalImageEl.src = event.target.dataset.source;
+  modalImageEl.alt = event.target.alt;
+  window.addEventListener('keydown', onEscPress);
 }
 
-// Закрытие модального окна по клику на кнопку button[data-action="close-lightbox"].
 closeBtn.addEventListener('click', onCloseBtnClick);
+overlay.addEventListener('click', onCloseBtnClick);
+
 function onCloseBtnClick(event) {
-  if (modalEll.classList.contains('is-open')) {
-    modalEll.classList.remove('is-open');
+  modalEll.classList.remove('is-open');
+  modalImageEl.src = '';
+  modalImageEl.alt = '';
+}
+function onEscPress(event) {
+  if (event.code === 'Escape') {
+    onCloseBtnClick();
   }
 }
-
-// Очистка значения атрибута src элемента img.lightbox__image. Это необходимо для того, чтобы при следующем открытии модального окна, пока грузится изображение, мы не видели предыдущее.
