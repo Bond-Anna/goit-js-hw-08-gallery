@@ -52,18 +52,20 @@ const modalEll = document.querySelector('.js-lightbox');
 const modalImageEl = document.querySelector('.lightbox__image');
 const closeBtn = document.querySelector('button[data-action="close-lightbox"]');
 const overlay = document.querySelector('.lightbox__overlay');
+let currentIndex;
 
 const galleryItemsMarkup = creatGalleryItemsMarkup(galleryItems);
 
 function creatGalleryItemsMarkup(galleryItems) {
   return galleryItems
-    .map(({ preview, original, description }) => {
+    .map(({ preview, original, description }, index) => {
       return `<li class="gallery__item">
         <a class="gallery__link" href="${original}">
           <img
             class="gallery__image"
             src="${preview}"
             data-source="${original}"
+            data-index="${index}"
             alt="${description}"
           />
         </a>
@@ -83,7 +85,10 @@ function onGalleryItemsClick(event) {
   modalEll.classList.add('is-open');
   modalImageEl.src = event.target.dataset.source;
   modalImageEl.alt = event.target.alt;
+
   window.addEventListener('keydown', onEscPress);
+  currentIndex = Number(event.target.dataset.index);
+  window.addEventListener('keydown', onArrowPress);
 }
 
 closeBtn.addEventListener('click', onCloseBtnClick);
@@ -94,8 +99,38 @@ function onCloseBtnClick(event) {
   modalImageEl.src = '';
   modalImageEl.alt = '';
 }
+
 function onEscPress(event) {
   if (event.code === 'Escape') {
     onCloseBtnClick();
   }
+}
+
+function onArrowPress(event) {
+  if (event.code === 'ArrowRight') {
+    onArrowRight();
+  } else if (event.code === 'ArrowLeft') {
+    onArrowLeft();
+  }
+}
+
+function onArrowRight() {
+  if (currentIndex + 1 > galleryItems.length - 1) {
+    currentIndex = 0;
+  } else {
+    currentIndex += 1;
+  }
+  changeImg();
+}
+
+function onArrowLeft() {
+  currentIndex -= 1;
+  if (currentIndex - 1 < 0) {
+    currentIndex = galleryItems.length - 1;
+  }
+  changeImg();
+}
+function changeImg() {
+  modalImageEl.src = galleryItems[currentIndex].original;
+  modalImageEl.alt = galleryItems[currentIndex].description;
 }
